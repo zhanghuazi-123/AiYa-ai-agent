@@ -1,0 +1,14 @@
+node_modules/
+.env
+data/
+*.db
+*.db-shm
+*.db-wal
+.DS_Store
+screenshots/
+sandbox/
+gen_pcm.py
+voice_e2e_test.mjs
+voice_e2e_test2.mjs
+app.js.fixed
+*.log

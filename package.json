@@ -1,0 +1,16 @@
+{
+  "name": "aiya",
+  "version": "1.0.0",
+  "description": "AiYa - A continuously running AI consciousness experiment",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node --env-file=.env src/index.js",
+    "dev": "node --watch src/index.js"
+  },
+  "dependencies": {
+    "better-sqlite3": "^12.8.0",
+    "openai": "^6.34.0",
+    "ws": "^8.20.0"
+  }
+}

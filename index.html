@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AiYa</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <canvas id="starfield"></canvas>
+
+  <div class="origin">
+    <div class="control">
+      <div class="galaxy" id="galaxy"></div>
+    </div>
+  </div>
+
+  <div id="solar-system">
+    <div id="sun">
+      <div class="sun-label" id="sunLabel"></div>
+    </div>
+    <div id="mercury-wrapper"><div id="mercury"></div></div>
+    <div id="venus-wrapper"><div id="venus"></div></div>
+    <div id="earth-wrapper"><div id="earth"></div></div>
+    <div id="mars-wrapper"><div id="mars"></div></div>
+    <div id="jupiter-wrapper"><div id="jupiter"></div></div>
+    <div id="saturn-wrapper"><div id="saturn"></div></div>
+  </div>
+
+  <!-- settings gear -->
+  <button class="settings-gear" id="settingsBtn" title="Settings">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+      <circle cx="12" cy="12" r="3"/>
+      <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+    </svg>
+  </button>
+
+  <!-- settings panel -->
+  <div class="settings-overlay" id="settingsOverlay"></div>
+  <aside class="settings-panel" id="settingsPanel">
+    <div class="settings-header">
+      <h2>Settings</h2>
+      <button class="settings-close" id="settingsClose">&times;</button>
+    </div>
+    <div class="settings-body">
+      <div class="settings-tabs">
+        <button class="settings-tab active" data-tab="llm">LLM</button>
+        <button class="settings-tab" data-tab="voice">Voice</button>
+        <button class="settings-tab" data-tab="context">Context</button>
+        <button class="settings-tab" data-tab="tools">Tools</button>
+        <button class="settings-tab" data-tab="about">About</button>
+      </div>
+
+      <div class="settings-tab-content active" id="tab-llm">
+        <div class="setting-group">
+          <label class="setting-label">Provider</label>
+          <select class="setting-select" id="providerSelect">
+            <option value="deepseek">DeepSeek</option>
+            <option value="qwen">Qwen (通义千问)</option>
+            <option value="minimax">MiniMax</option>
+            <option value="openai">OpenAI</option>
+            <option value="custom">Custom</option>
+          </select>
+        </div>
+        <div class="setting-group">
+          <label class="setting-label">Model</label>
+          <select class="setting-select" id="modelSelect">
+            <option>deepseek-v4-flash</option>
+            <option>deepseek-v4-pro</option>
+            <option>deepseek-chat</option>
+          </select>
+        </div>
+        <div class="setting-group">
+          <label class="setting-label">API Key</label>
+          <div class="setting-input-row">
+            <input type="password" class="setting-input" id="apiKeyInput" placeholder="sk-...">
+            <button class="setting-btn-sm" id="apiKeyToggle">👁</button>
+          </div>
+        </div>
+        <div class="setting-group">
+          <label class="setting-label">Base URL</label>
+          <input type="text" class="setting-input" id="baseUrlInput" placeholder="https://api.deepseek.com/v1">
+        </div>
+        <div class="setting-group">
+          <label class="setting-label">Temperature</label>
+          <input type="range" class="setting-range" id="tempRange" min="0" max="2" step="0.1" value="0.5">
+          <span class="setting-value" id="tempValue">0.5</span>
+        </div>
+        <div class="setting-divider"></div>
+        <button class="setting-btn" id="activateBtn">Activate & Save</button>
+        <div class="setting-hint" id="activateHint"></div>
+      </div>
+
+      <div class="settings-tab-content" id="tab-voice">
+        <div class="setting-section-title">Speech Recognition</div>
+        <div class="setting-group">
+          <label class="setting-label">ASR Provider</label>
+          <select class="setting-select" id="asrProvider">
+            <option value="none">None</option>
+            <option value="doubao">Doubao (火山引擎)</option>
+            <option value="aliyun">Aliyun ASR</option>
+            <option value="openai">OpenAI Whisper</option>
+          </select>
+        </div>
+
+        <!-- Doubao ASR credentials (shown when ASR = doubao) -->
+        <div class="setting-group asr-doubao-creds" style="display:none">
+          <label class="setting-label">豆包 App ID</label>
+          <input type="text" class="setting-input" id="doubaoAppId" placeholder="4144325380">
+        </div>
+        <div class="setting-group asr-doubao-creds" style="display:none">
+          <label class="setting-label">豆包 Access Token</label>
+          <input type="password" class="setting-input" id="doubaoAccessToken" placeholder="x7G5...">
+        </div>
+        <div class="setting-group asr-doubao-creds" style="display:none">
+          <label class="setting-label">豆包 Resource ID</label>
+          <input type="text" class="setting-input" id="doubaoResourceId" placeholder="volc.bigasr.sauc.duration">
+        </div>
+
+        <div class="setting-group">
+          <label class="setting-label">ASR API Key</label>
+          <input type="password" class="setting-input" id="asrKeyInput" placeholder="Optional (阿里云等)">
+        </div>
+        <div class="setting-divider"></div>
+        <div class="setting-section-title">Speech Synthesis (TTS)</div>
+        <div class="setting-group">
+          <label class="setting-label">TTS Provider</label>
+          <select class="setting-select" id="ttsProvider">
+            <option value="none">None</option>
+            <option value="doubao">Doubao (豆包)</option>
+            <option value="minimax">MiniMax</option>
+            <option value="openai">OpenAI TTS</option>
+          </select>
+        </div>
+
+        <!-- Doubao TTS credentials (shown when TTS = doubao) -->
+        <div class="setting-group tts-doubao-creds" style="display:none">
+          <label class="setting-label">豆包 TTS Key</label>
+          <input type="password" class="setting-input" id="ttsKeyInput" placeholder="TTS API Key">
+        </div>
+        <div class="setting-group tts-doubao-creds" style="display:none">
+          <label class="setting-label">豆包 TTS App ID</label>
+          <input type="text" class="setting-input" id="ttsDoubaoAppId" placeholder="App ID (可选)">
+        </div>
+        <div class="setting-group tts-doubao-creds" style="display:none">
+          <label class="setting-label">豆包 TTS Access Key</label>
+          <input type="password" class="setting-input" id="ttsDoubaoAccessKey" placeholder="Access Key (可选)">
+        </div>
+        <div class="setting-group tts-doubao-creds" style="display:none">
+          <label class="setting-label">豆包 TTS Resource ID</label>
+          <input type="text" class="setting-input" id="ttsDoubaoResourceId" placeholder="Resource ID (可选)">
+        </div>
+
+        <!-- OpenAI TTS credentials (shown when TTS = openai) -->
+        <div class="setting-group tts-openai-creds" style="display:none">
+          <label class="setting-label">OpenAI TTS Key</label>
+          <input type="password" class="setting-input" id="ttsOpenaiKey" placeholder="sk-...">
+        </div>
+        <div class="setting-group tts-openai-creds" style="display:none">
+          <label class="setting-label">OpenAI Base URL</label>
+          <input type="text" class="setting-input" id="ttsOpenaiBaseUrl" placeholder="https://api.openai.com">
+        </div>
+
+        <!-- MiniMax TTS credentials (shown when TTS = minimax) -->
+        <div class="setting-group tts-minimax-creds" style="display:none">
+          <label class="setting-label">MiniMax TTS Key</label>
+          <input type="password" class="setting-input" id="ttsMinimaxKey" placeholder="留空则使用 LLM Key">
+        </div>
+
+        <div class="setting-group">
+          <label class="setting-label">Voice</label>
+          <select class="setting-select" id="ttsVoice">
+            <option value="zh_female_xiaohe_uranus_bigtts">XiaoHe (女声 推荐)</option>
+            <option value="zh_male_uranus_bigtts">Uranus (男声)</option>
+            <option value="alloy">Alloy (OpenAI)</option>
+            <option value="echo">Echo (OpenAI)</option>
+            <option value="nova">Nova (OpenAI)</option>
+          </select>
+        </div>
+        <div class="setting-divider"></div>
+        <button class="setting-btn" id="saveVoiceBtn">Save Voice Settings</button>
+        <div class="setting-hint" id="voiceHint"></div>
+      </div>
+
+      <div class="settings-tab-content" id="tab-context">
+        <div class="setting-section-title">Context Injection</div>
+        <div class="setting-group">
+          <label class="setting-label">Weather in Context</label>
+          <label class="toggle-label">
+            <input type="checkbox" id="weatherToggle">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="setting-group">
+          <label class="setting-label">Trending Topics in TICK</label>
+          <label class="toggle-label">
+            <input type="checkbox" id="hotspotsToggle">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="setting-group">
+          <label class="setting-label">Hotspot Platform</label>
+          <select class="setting-select" id="hotspotPlatform">
+            <option value="weibo">微博</option>
+            <option value="zhihu">知乎</option>
+          </select>
+        </div>
+        <div class="setting-divider"></div>
+        <div class="setting-section-title">Location</div>
+        <div class="setting-group">
+          <label class="setting-label">City</label>
+          <input type="text" class="setting-input" id="cityInput" placeholder="Beijing" style="max-width:160px">
+        </div>
+        <div class="setting-divider"></div>
+        <div class="setting-section-title">TICK Interval</div>
+        <div class="setting-group">
+          <label class="setting-label">Heartbeat (minutes)</label>
+          <input type="range" class="setting-range" id="tickIntervalRange" min="1" max="120" step="1" value="20">
+          <span class="setting-value" id="tickIntervalValue">20</span>
+        </div>
+        <div class="setting-divider"></div>
+        <button class="setting-btn" id="saveContextBtn">Save Context Settings</button>
+        <div class="setting-hint" id="contextHint"></div>
+      </div>
+
+      <div class="settings-tab-content" id="tab-tools">
+        <div class="setting-section-title">Available Tools</div>
+        <div id="toolsList" style="font-size:12px;color:rgba(255,255,255,0.5);padding:8px 0;">Loading...</div>
+      </div>
+
+      <div class="settings-tab-content" id="tab-about">
+        <div class="setting-group">
+          <label class="setting-label">Status</label>
+          <div class="setting-status">
+            <span class="status-dot running"></span>
+            <span id="statusText">Running</span>
+          </div>
+        </div>
+        <div class="setting-group">
+          <label class="setting-label">Memories</label>
+          <span class="setting-value" id="memoryCount">—</span>
+        </div>
+        <div class="setting-group">
+          <label class="setting-label">LLM Quota</label>
+          <span class="setting-value" id="quotaInfo">—</span>
+        </div>
+        <div class="setting-divider"></div>
+        <div class="setting-group">
+          <label class="setting-label">Agent</label>
+          <span class="setting-value">AiYa</span>
+        </div>
+        <div class="setting-group">
+          <label class="setting-label">Version</label>
+          <span class="setting-value">v1.0.0</span>
+        </div>
+
+        <div class="setting-divider"></div>
+        <div class="setting-section-title">功能介绍</div>
+        <div class="guide-card">
+          <div class="guide-icon">🤖</div>
+          <div class="guide-text">
+            <strong>AiYa</strong> 是一个 AI 对话助手，支持文字和语音交互。
+            你可以像和朋友聊天一样跟它说话，它会用语音回答你。（AiYa拥有长期记忆，主动学习，自我迭代的能力。经过长期交流，会更懂你。）
+          </div>
+        </div>
+
+        <div class="setting-section-title">快速开始</div>
+        <div class="guide-card">
+          <div class="guide-step">
+            <div class="guide-step-num">1</div>
+            <div class="guide-step-body">
+              <strong>配置大模型</strong> → 切换到 <b>LLM</b> 标签，选 Provider、填 API Key，点 <b>Activate & Save</b>
+            </div>
+          </div>
+          <div class="guide-step">
+            <div class="guide-step-num">2</div>
+            <div class="guide-step-body">
+              <strong>配置语音（可选）</strong> → 切换到 <b>Voice</b> 标签，选 ASR/TTS Provider，填对应凭证
+            </div>
+          </div>
+          <div class="guide-step">
+            <div class="guide-step-num">3</div>
+            <div class="guide-step-body">
+              <strong>开始对话</strong> → 在输入框打字按回车，或点击麦克风按钮开始语音输入
+            </div>
+          </div>
+        </div>
+
+        <div class="setting-section-title">LLM 设置说明</div>
+        <div class="guide-card">
+          <table class="guide-table">
+            <tr><td style="width:90px">Provider</td><td>大模型供应商</td></tr>
+            <tr><td>Model</td><td>模型名称（如 deepseek-v4-flash）</td></tr>
+            <tr><td>API Key</td><td>API 密钥，保存后自动隐藏</td></tr>
+            <tr><td>Base URL</td><td>可选。兼容 OpenAI API 的请求地址</td></tr>
+            <tr><td>Temperature</td><td>创意程度。0=严谨，1=平衡，2=放飞</td></tr>
+          </table>
+          <div class="guide-tip">💡 点 <b>Activate & Save</b> 后若显示 ✅ 已激活即可使用。</div>
+        </div>
+
+        <div class="setting-section-title">语音设置说明</div>
+        <div class="guide-card">
+          <p style="margin-bottom:6px"><strong>ASR（语音识别）</strong> — 把你的语音转成文字</p>
+          <table class="guide-table">
+            <tr><td style="width:90px">Doubao</td><td>火山引擎豆包 ASR。需填 App ID / Access Token / Resource ID</td></tr>
+            <tr><td>Aliyun</td><td>阿里云语音识别（需 API Key）</td></tr>
+            <tr><td>Whisper</td><td>OpenAI Whisper API（需 API Key）</td></tr>
+          </table>
+          <p style="margin:10px 0 6px"><strong>TTS（语音合成）</strong> — 让 AiYa 用语音回答你</p>
+          <table class="guide-table">
+            <tr><td style="width:90px">Doubao</td><td>火山引擎豆包 TTS。需 TTS Key</td></tr>
+            <tr><td>MiniMax</td><td>MiniMax TTS（可选填 Key，留空则用 LLM Key）</td></tr>
+            <tr><td>OpenAI</td><td>OpenAI TTS。需 OpenAI Key 和 Base URL</td></tr>
+          </table>
+          <div class="guide-tip">💡 Voice 下拉可选不同音色。设置完后点 <b>Save Voice Settings</b>。</div>
+        </div>
+
+        <div class="setting-section-title">语音对话技巧</div>
+        <div class="guide-card">
+          <ul class="guide-ul">
+            <li>点击麦克风按钮开始录音，再次点击停止</li>
+            <li>说完话后 AiYa 会自动检测停顿并发送</li>
+            <li>AiYa 回答完后会恢复录音，形成自然的对话流</li>
+            <li>可以随时点击麦克风按钮手动停止录音</li>
+            <li>如果觉得回声大，检查音箱音量或使用耳机</li>
+          </ul>
+        </div>
+
+        <div class="setting-section-title">上下文设置</div>
+        <div class="guide-card">
+          <table class="guide-table">
+            <tr><td style="width:150px">Weather in Context</td><td>对话中注入本地天气信息</td></tr>
+            <tr><td>Trending Topics</td><td>注入微博/知乎热搜，让 AiYa 知道时事</td></tr>
+            <tr><td>City</td><td>你的所在城市，用于天气和本地信息</td></tr>
+            <tr><td>Heartbeat</td><td>心跳间隔（分钟）。AiYa 会主动询问或推送提醒</td></tr>
+          </table>
+        </div>
+
+        <div class="setting-section-title">Tools</div>
+        <div class="guide-card">
+          <p>Tools 标签页列出当前可用的工具（函数调用），
+          供大模型调用以执行搜索、查询天气等操作。无需手动配置。</p>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- chat messages - left panel -->
+  <div class="chat-messages" id="chatMessages">
+    <div class="msg agent">
+      <div class="msg-avatar">A</div>
+      <div class="msg-bubble">Hello, I'm AiYa. How can I help you today?</div>
+    </div>
+  </div>
+
+  <!-- brand watermark centered -->
+  <div class="brand-overlay">
+    <h1 class="chat-brand">AiYa</h1>
+  </div>
+
+  <!-- chat input bar - centered at bottom -->
+  <div class="chat-input-bar">
+    <button class="voice-btn" id="voiceBtn" title="Voice input">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/>
+      </svg>
+    </button>
+    <span class="voice-status" id="voiceStatus"></span>
+    <input type="text" class="chat-input" id="chatInput" placeholder="Message AiYa..." autocomplete="off">
+    <button class="chat-send" id="chatSend">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/>
+      </svg>
+    </button>
+  </div>
+
+  <script src="stars.js"></script>
+  <script src="galaxy.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
