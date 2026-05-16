@@ -222,6 +222,8 @@ MIT License — 自由使用、修改和分发。
 
 ---
 
+> 本项目基于 [BaiLongma](https://github.com/zhanghuazi-123/hehe) 开源项目二次开发。
+
 <p align="center">
   <sub>Built with ❤️ by <a href="https://github.com/zhanghuazi-123">zhanghuazi-123</a></sub>
 </p>
